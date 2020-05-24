@@ -1,6 +1,8 @@
 import os
 
 from flask import Flask, Response, redirect, url_for, request, session, abort
+from flask import redirect, render_template, request, session, jsonify, flash
+from functools import wraps
 from flask_session import Session
 import random
 import requests
@@ -18,82 +20,61 @@ if not os.getenv("DATABASE_URL"):
 # Configure session to use filesystem
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
-# app.config["SECRET_KEY"] = "secret1"
-# app.config["DEBUG"] = True
-# app.config["TESTING"] = False
+print(os.getcwd())
+sesh = Session(app)
 
 
 # Set up database
 engine = create_engine(os.getenv("DATABASE_URL"))
 db = scoped_session(sessionmaker(bind=engine))
-Session(app)
-# set up login manager
-# login_manager = LoginManager()
-# login_manager.init_app(app)
-# login_manager.login_view = 'login'
 
-
-# silly user model
-# class User(UserMixin):
-#     def __init__(self, id):
-#         self.id = id
-#         self.name = "admin"
-#         self.password = self.name
-#
-#     def __repr__(self):
-#         return "%d/%s/%s" % (self.id, self.name, self.password)
-
-
-# create some users with ids 1 to 20
-# users = [User(id) for id in range(1, 21)]
-
-from flask import redirect, render_template, request, session
-from functools import wraps
 
 def login_required(f):
-    """
-    Decorate routes to require login.
-    http://flask.pocoo.org/docs/1.0/patterns/viewdecorators/
-    """
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if session.get("user_id") is None:
+        print(session)
+        if not session.get("logged_in"):
+            session.pop("username",None)
+            session.pop("logged_in",None)
             return redirect("/login")
         return f(*args, **kwargs)
     return decorated_function
-# @app.route("/")
-# def index():
-#     return "Project 1: TODO"
 
 # some protected url
 @app.route('/')
 @login_required
-def home():
-    return Response("Hello World!")
+def index():
+    return render_template("index.html")
 
 
 # somewhere to login
 @app.route("/login", methods=["GET", "POST"])
 def login():
     session.clear()
+    # session.remove()
+    print(session)
+    username = request.form.get("username")
+    password = request.form.get("password")
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        if password == username:
-            session['logged_in'] = username
+        print("post")
+        query = db.execute("SELECT * FROM \"Users\"" +
+                            " where username = :username",
+                            {"username":username}).fetchone()
+        flash(str(query))
+        ## fix this so that it works with users not in DB
+        if query != None and password == query[2]:
+            print(password,query[2])
+            session['username'] = username
+            session['logged_in'] = True
             session.modified = True
             return redirect("/")
         else:
-            db.remove()
+            # I think it will be better to
+            #  display an error message on login page
+            # error in login go to error page
             return abort(401)
     else:
-        return Response('''
-        <form action="" method="post">
-            <p><input type=text name=username>
-            <p><input type=password name=password>
-            <p><input type=submit value=Login>
-        </form>
-        ''')
+        return render_template("login.html")
 
 
 # somewhere to logout
@@ -101,20 +82,26 @@ def login():
 @login_required
 def logout():
     session.clear()
-    return Response('<p>Logged out</p>')
+    return redirect("/")
 
 
 # handle login failed
 @app.errorhandler(401)
 def page_not_found(e):
-    return Response('<p>Login failed</p>')
+    ## TODO: make it so that it
+    ## redirects to error page with a specific message
+    return Response('<p>Login failed</p> <a href="/login">Login</a>')
 
 
-# callback to reload the user object
-# @login_manager.user_loader
-# def load_user(userid):
-#     return User(userid)
-
-
-if __name__ == "__main__":
-    app.run()
+## make a register page
+@app.route("/register",methods=["GET","POST"])
+def register():
+    pass
+@app.route("/search", methods=["GET"])
+@login_required
+def search():
+    pass
+@app.route("/book/<isbn>",methods=["GET","POST"])
+@login_required
+def book(isbn):
+    pass
