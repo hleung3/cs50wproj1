@@ -4,19 +4,36 @@
     Register
 {% endblock %}
 
-{% block content %}
+{% block body %}
 
     <h3>Create your account</h3>
     <form action="/register" method="post">
-        <div class="form-group">
-            <input autocomplete="off" autofocus class="form-control" name="username" placeholder="Username" type="text"/>
+        <div class="form-group" >
+            <input autocomplete="off" autofocus class="form-control"
+            name="username" placeholder="Username" type="text"/>
+            {{ user_msg }}
         </div>
         <div class="form-group">
-            <input class="form-control" name="password" placeholder="Password" type="password"/>
+            <input class="form-control" name="password"
+            placeholder="Password" type="password"/>
+            {{ pw_msg }}
         </div>
         <div class="form-group">
-            <input class="form-control" name="confirmation" placeholder="Confirm password" type="password"/>
+            <input class="form-control" name="confirmation"
+            placeholder="Confirm password" type="password"/>
+            {{  confirm_msg }}
         </div>
         <button class="btn btn-primary" type="submit">Register</button>
+        {% if message %}
+          <h3>{{ message }}</h3>
+        {% else %}
+          <div></div>
+        {% endif %}
+        <br>
+        {% if success %}
+        <a href="/login">go to login page</a>
+        {% else %}
+          <div></div>
+        {% endif %}
     </form>
 {% endblock %}

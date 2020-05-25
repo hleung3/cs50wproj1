@@ -28,6 +28,7 @@ sesh = Session(app)
 ## i.e. the browser will still have access to not login pages
 '''
 # Set up database
+
 engine = create_engine(os.getenv("DATABASE_URL"))
 db = scoped_session(sessionmaker(bind=engine))
 
@@ -59,7 +60,7 @@ def login():
     password = request.form.get("password")
     if request.method == 'POST':
         print("post")
-        user_query = db.execute("SELECT * FROM \"Users\"" +
+        user_query = db.execute("SELECT * FROM users" +
                             " where username = :username",
                             {"username":username}).fetchone()
         flash(str(user_query))
@@ -102,36 +103,45 @@ def register():
     if request.method == 'POST':
         print("post")
         username = request.form.get("username")
-        password = request.form.get("password")\
+        password = request.form.get("password")
         pw_confirm = request.form.get("confirmation")
-        user_query = db.execute("SELECT * FROM \"Users\"" +
-                            " where username = :username",
-                            {"username":username}).fetchone()
+
+        user_query = db.execute("SELECT * FROM users" +
+        " where username = :username",
+        {"username":username}).fetchone()
+
         flash(str(user_query))
-        if user_query != None:
+        if not username or username == "":
+            return render_template("register.html",user_msg="please provide a username")
+        elif user_query is not None:
             # username already in DB
-            pass
+            return render_template("register.html",message="username in DB Already")
         elif not password:
             # no password provided
-            pass
+            return render_template("register.html",pw_msg="please provide a password")
         elif not pw_confirm:
-            pass
+
+            return render_template("register.html",confirm_msg="please confirm Password")
         elif not password == pw_confirm:
-            pass
+
+            return render_template("register.html",message="passwords do not match")
         # insert new user into DB
-        db.execute("INSERT INTO users (username,password) values ()",
+        db.execute("INSERT INTO users (username,password) values (:username,:password)",
                      {"username":username, "password":password})
         db.commit()
         ## TODO: update page to incidate success
             ## flash bootstrap alert message ???
-        ## THEN: make a hyperlink to login page
-        return redirect("/login")
 
-    else:
-        # I think it will be better to
-        #  display an error message on login page
-        # error in login go to error page
-        return render_template("register.html")
+        ## THEN: REDIRECT TO SUCCESS PAGE WITH HYPERLINK TO LOGIN
+        ##
+        return render_template("register.html",message="register success!",success=True)
+
+    # else:
+    #
+    #     # I think it will be better to
+    #     #  display an error message on login page
+    #     # error in login go to error page
+    #     return render_template("register.html")
 
 @app.route("/search", methods=["GET"])
 @login_required
