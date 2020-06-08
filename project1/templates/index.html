@@ -5,9 +5,28 @@
 {% endblock %}
 
 {% block body %}
-    <p>
+    <div class="">
+      <a href="{{ url_for('logout') }}">logout</a>
+    </div>
+    <div class="">
+      <p>
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce placerat rutrum nisi at pellentesque. Fusce orci magna, pulvinar ut ultricies id, feugiat eu elit. Nam molestie eu lacus eu fermentum. Fusce eleifend tempus sapien eu maximus. Donec lobortis dapibus magna, quis facilisis velit malesuada a. Nunc iaculis augue nulla, sed sodales dui volutpat lacinia.
-    </p>
+      </p>
+      <!-- image of a book -->
+      <h3>Search for a book!</h3>
+      <form action="/search" method="GET">
+          <div class="form-group">
+              <input type="text"  name="book"  placeholder="ISBN, Title or Author">
+              <!-- <input type="text"  name="book" autofocus aria-describedby="bookHelp" placeholder="ISBN, Title or Author"> -->
+              <small id="bookHelp" class="form-text text-muted">Example: 0375508325, Cosmos or Carl Sagan</small>
+          </div>
+          <button class="btn btn-primary" type="submit">Search</button>
+      </form>
+    </div>
+    {% if message %}
+      <h4>{{ message }}</h4>
+    {% else %}
+      <div></div>
+    {% endif %}
 
-    <a href="{{ url_for('logout') }}">logout</a>
 {% endblock %}

@@ -3,7 +3,7 @@
   Login
 {% endblock%}
 
-{% block body %}
+{% block page_content %}
 
   <h3>Log in or <a href="/register">create an account</a></h3>
   <form action="/login" method="post">
@@ -15,5 +15,10 @@
       </div>
       <button class="btn btn-primary" type="submit">Log In</button>
   </form>
+  <!-- {% if message %}
+    <h4>{{ message }}</h4>
+  {% else %}
+    <div></div>
+  {% endif %} -->
 
 {% endblock %}

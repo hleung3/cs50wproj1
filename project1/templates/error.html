@@ -1,0 +1,11 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Error
+{% endblock %}
+
+{% block page_content %}
+    <h2>Oops, {{ message }}</h2>
+    <br>
+    <a href={{ link }}>go back</a>
+{% endblock %}
