@@ -8,9 +8,7 @@ import random
 import requests
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
-## TODO: implement security features (i.e. HASHing passwords)
-## TODO: AUTOMATICALLY GETBOOKS AND UPDATE DB?
-## TODO: should I move some functions to a helper function
+
 app = Flask(__name__, instance_relative_config=False)
 
 # Check for environment variable
@@ -21,12 +19,8 @@ if not os.getenv("DATABASE_URL"):
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 sesh = Session(app)
-'''
-# NOT_TODO:
-## UNRESOLVABLE ISSUE --> if you restart the app in conda
-## the browser retains the filesystem session data
-## i.e. the browser will still have access to not login pages
-'''
+
+
 # Set up database
 engine = create_engine(os.getenv("DATABASE_URL"))
 db = scoped_session(sessionmaker(bind=engine))
@@ -70,10 +64,6 @@ def login():
             session.modified = True
             return redirect("/")
         else:
-            # TODO:
-            # I think it will be better to
-            #  display an error message on login page
-            # error in login go to error page
             return abort(401)
     else:
         return render_template("login.html")
@@ -90,8 +80,6 @@ def logout():
 # handle login failed
 @app.errorhandler(401)
 def page_not_found(e):
-    ## TODO: make it so that it
-    ## redirects to error page with a specific message
     return Response('<p>Login failed</p> <a href="/login">Login</a>')
 
 
@@ -122,15 +110,9 @@ def register():
         db.execute("INSERT INTO users (username,password) values ()",
                      {"username":username, "password":password})
         db.commit()
-        ## TODO: update page to incidate success
-            ## flash bootstrap alert message ???
-        ## THEN: make a hyperlink to login page
         return redirect("/login")
 
     else:
-        # I think it will be better to
-        #  display an error message on login page
-        # error in login go to error page
         return render_template("register.html")
 
 @app.route("/search", methods=["GET"])
@@ -140,9 +122,6 @@ def search():
     if not book:
         pass
     query = "%" + book + "%"
-
-    # Capitalize all words of input for search
-    # https://docs.python.org/3.7/library/stdtypes.html?highlight=title#str.title
     query = query.title()
 
     rows = db.execute("SELECT isbn, title, author, year FROM books WHERE \
@@ -184,22 +163,14 @@ def book(isbn):
             return redirect("/book/" + isbn)
 
         rating = int(rating)
-        # db.execute()
-        # db.commit()
-        # submitted message
 
         return redirect("/book/" + isbn)
     else:
-        # row = db.execute()
-        # bookinfo = row.fetchall()
         ''' good reads review '''
         api_key = ""
         query = ""
         response = ""
         bookinfo = ""
-        # get books
-        # row = db.execute()
-        # book = row.fetchone()
         pass
 
 
