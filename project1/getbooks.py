@@ -18,8 +18,6 @@ db = scoped_session(sessionmaker(bind=engine))
 # take csv of book titles and prep to add to db
 file = open("books.csv")
 
-# reader = csv.reader(file)
-# print(reader)
 
 data = pd.read_csv(r'books.csv')
 df = pd.DataFrame(data, columns= ['isbn','title','author','year'])
@@ -28,14 +26,4 @@ df = pd.DataFrame(data, columns= ['isbn','title','author','year'])
 df.to_sql('books',engine,if_exists='append')
 result = db.execute("SELECT * FROM books")
 [print(i) for i in result]
-# for row in df.iterrows():
-#     print(row)
-#     db.execute("INSERT INTO \'books\' (isbn, title, author, year) VALUES (:isbn, :title, :author, :year)",
-#                 {"isbn": isbn,
-#                  "title": title,
-#                  "author": author,
-#                  "year": year})
-#
-#     print(f"Added book {title} to database.")
-#
-#     db.commit()
+
